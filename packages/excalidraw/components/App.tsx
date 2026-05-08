@@ -2183,6 +2183,8 @@ class App extends React.Component<AppProps, AppState> {
                           value={this.actionManager}
                         >
                           <LayerUI
+                            librariesHidden={this.props.librariesHidden}
+                            librariesFreeze={this.props.librariesFreeze}
                             canvas={this.canvas}
                             appState={this.state}
                             files={this.files}
