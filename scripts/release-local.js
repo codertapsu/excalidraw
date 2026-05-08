@@ -165,24 +165,20 @@ function main() {
   console.log(`Release ${version} complete.`);
   console.log("==============================================\n");
   console.log("Tarballs are in dist-packages/.");
-  console.log("Consumers can install via raw GitHub URLs, e.g.:\n");
-  console.log("  // package.json");
-  for (const name of PACKAGES) {
-    const fullName = `@excalidraw/${name}`;
-    const tarballName = `excalidraw-${name}-${version}.tgz`;
-    const url = `https://raw.githubusercontent.com/codertapsu/excalidraw/${branch}/dist-packages/${tarballName}`;
-    console.log(`  "${fullName}": "${url}",`);
-  }
   console.log(
-    "\nNote: every @excalidraw/* package must be declared in the consumer's",
+    "Cross-package deps inside the tarballs were rewritten to GitHub raw URLs,",
   );
   console.log(
-    "package.json with the matching tarball URL, since the packed bundles",
+    "so a consumer only needs the top-level package(s) they actually import:\n",
   );
+  console.log("  // consumer's package.json");
+  const tarballName = `excalidraw-excalidraw-${version}.tgz`;
+  const url = `https://raw.githubusercontent.com/codertapsu/excalidraw/${branch}/dist-packages/${tarballName}`;
+  console.log(`  "@excalidraw/excalidraw": "${url}"\n`);
   console.log(
-    "leave cross-package deps as external (they will not auto-resolve from npm",
+    "npm will resolve @excalidraw/common, /element, /math, /fractional-indexing,",
   );
-  console.log("when the version contains a fork suffix).\n");
+  console.log("and /utils recursively from the URLs baked into the tarball.\n");
 }
 
 try {
