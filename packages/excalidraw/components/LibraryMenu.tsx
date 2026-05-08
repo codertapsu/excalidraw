@@ -63,6 +63,7 @@ const LibraryMenuWrapper = ({ children }: { children: React.ReactNode }) => {
 
 const LibraryMenuContent = memo(
   ({
+    librariesFreeze,
     onInsertLibraryItems,
     pendingElements,
     onAddToLibrary,
@@ -74,6 +75,7 @@ const LibraryMenuContent = memo(
     selectedItems,
     onSelectItems,
   }: {
+    librariesFreeze?: boolean;
     pendingElements: LibraryItem["elements"];
     onInsertLibraryItems: (libraryItems: LibraryItems) => void;
     onAddToLibrary: () => void;
@@ -142,7 +144,8 @@ const LibraryMenuContent = memo(
     }
 
     const showBtn =
-      libraryItemsData.libraryItems.length > 0 || pendingElements.length > 0;
+      !librariesFreeze &&
+      (libraryItemsData.libraryItems.length > 0 || pendingElements.length > 0);
 
     return (
       <LibraryMenuWrapper>
@@ -261,84 +264,90 @@ const usePendingElementsMemo = (
  * This component is meant to be rendered inside <Sidebar.Tab/> inside our
  * <DefaultSidebar/> or host apps Sidebar components.
  */
-export const LibraryMenu = memo(() => {
-  const app = useApp();
-  const { onInsertElements } = app;
-  const appProps = useAppProps();
-  const appState = useUIAppState();
-  const setAppState = useExcalidrawSetAppState();
-  const [selectedItems, setSelectedItems] = useState<LibraryItem["id"][]>([]);
-  const memoizedLibrary = useMemo(() => app.library, [app.library]);
-  const pendingElements = usePendingElementsMemo(appState, app);
+export const LibraryMenu = memo(
+  ({ librariesFreeze }: { librariesFreeze?: boolean }) => {
+    const app = useApp();
+    const { onInsertElements } = app;
+    const appProps = useAppProps();
+    const appState = useUIAppState();
+    const setAppState = useExcalidrawSetAppState();
+    const [selectedItems, setSelectedItems] = useState<LibraryItem["id"][]>([]);
+    const memoizedLibrary = useMemo(() => app.library, [app.library]);
+    const pendingElements = usePendingElementsMemo(appState, app);
 
-  useEffect(() => {
-    return addEventListener(
-      document,
-      EVENT.KEYDOWN,
-      (event) => {
-        if (event.key === KEYS.ESCAPE && event.target instanceof HTMLElement) {
-          const target = event.target;
-          if (target.closest(`.${CLASSES.SIDEBAR}`)) {
-            // stop propagation so that we don't prevent it downstream
-            // (default browser behavior is to clear search input on ESC)
-            if (selectedItems.length > 0) {
-              event.stopPropagation();
-              setSelectedItems([]);
-            } else if (
-              isWritableElement(target) &&
-              target instanceof HTMLInputElement &&
-              !target.value
-            ) {
-              event.stopPropagation();
-              // if search input empty -> close library
-              // (maybe not a good idea?)
-              setAppState({ openSidebar: null });
-              app.focusContainer();
-            }
-          } else if (selectedItems.length > 0) {
-            const { x, y } = app.lastViewportPosition;
-            const elementUnderCursor = document.elementFromPoint(x, y);
-            // also deselect elements if sidebar doesn't have focus but the
-            // cursor is over it
-            if (elementUnderCursor?.closest(`.${CLASSES.SIDEBAR}`)) {
-              event.stopPropagation();
-              setSelectedItems([]);
+    useEffect(() => {
+      return addEventListener(
+        document,
+        EVENT.KEYDOWN,
+        (event) => {
+          if (
+            event.key === KEYS.ESCAPE &&
+            event.target instanceof HTMLElement
+          ) {
+            const target = event.target;
+            if (target.closest(`.${CLASSES.SIDEBAR}`)) {
+              // stop propagation so that we don't prevent it downstream
+              // (default browser behavior is to clear search input on ESC)
+              if (selectedItems.length > 0) {
+                event.stopPropagation();
+                setSelectedItems([]);
+              } else if (
+                isWritableElement(target) &&
+                target instanceof HTMLInputElement &&
+                !target.value
+              ) {
+                event.stopPropagation();
+                // if search input empty -> close library
+                // (maybe not a good idea?)
+                setAppState({ openSidebar: null });
+                app.focusContainer();
+              }
+            } else if (selectedItems.length > 0) {
+              const { x, y } = app.lastViewportPosition;
+              const elementUnderCursor = document.elementFromPoint(x, y);
+              // also deselect elements if sidebar doesn't have focus but the
+              // cursor is over it
+              if (elementUnderCursor?.closest(`.${CLASSES.SIDEBAR}`)) {
+                event.stopPropagation();
+                setSelectedItems([]);
+              }
             }
           }
-        }
+        },
+        { capture: true },
+      );
+    }, [selectedItems, setAppState, app]);
+
+    const onInsertLibraryItems = useCallback(
+      (libraryItems: LibraryItems) => {
+        onInsertElements(distributeLibraryItemsOnSquareGrid(libraryItems));
+        app.focusContainer();
       },
-      { capture: true },
+      [onInsertElements, app],
     );
-  }, [selectedItems, setAppState, app]);
 
-  const onInsertLibraryItems = useCallback(
-    (libraryItems: LibraryItems) => {
-      onInsertElements(distributeLibraryItemsOnSquareGrid(libraryItems));
-      app.focusContainer();
-    },
-    [onInsertElements, app],
-  );
+    const deselectItems = useCallback(() => {
+      setAppState({
+        selectedElementIds: {},
+        selectedGroupIds: {},
+        activeEmbeddable: null,
+      });
+    }, [setAppState]);
 
-  const deselectItems = useCallback(() => {
-    setAppState({
-      selectedElementIds: {},
-      selectedGroupIds: {},
-      activeEmbeddable: null,
-    });
-  }, [setAppState]);
-
-  return (
-    <LibraryMenuContent
-      pendingElements={pendingElements}
-      onInsertLibraryItems={onInsertLibraryItems}
-      onAddToLibrary={deselectItems}
-      setAppState={setAppState}
-      libraryReturnUrl={appProps.libraryReturnUrl}
-      library={memoizedLibrary}
-      id={app.id}
-      theme={appState.theme}
-      selectedItems={selectedItems}
-      onSelectItems={setSelectedItems}
-    />
-  );
-});
+    return (
+      <LibraryMenuContent
+        librariesFreeze={librariesFreeze}
+        pendingElements={pendingElements}
+        onInsertLibraryItems={onInsertLibraryItems}
+        onAddToLibrary={deselectItems}
+        setAppState={setAppState}
+        libraryReturnUrl={appProps.libraryReturnUrl}
+        library={memoizedLibrary}
+        id={app.id}
+        theme={appState.theme}
+        selectedItems={selectedItems}
+        onSelectItems={setSelectedItems}
+      />
+    );
+  },
+);
