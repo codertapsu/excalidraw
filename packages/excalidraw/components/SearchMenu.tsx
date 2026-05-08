@@ -172,13 +172,13 @@ export const SearchMenu = () => {
 
       const focusedId =
         focusIndex !== null
-          ? state.searchMatches?.matches[focusIndex]?.id || null
+          ? state.searchMatches?.matches?.[focusIndex]?.id || null
           : null;
 
       return {
         searchMatches: {
           focusedId,
-          matches: state.searchMatches.matches.map((match, index) => {
+          matches: state.searchMatches?.matches?.map((match, index) => {
             if (index === focusIndex) {
               return { ...match, focus: true };
             }
