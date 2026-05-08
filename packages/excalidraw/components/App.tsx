@@ -7722,7 +7722,7 @@ class App extends React.Component<AppProps, AppState> {
         return {
           searchMatches: state.searchMatches && {
             focusedId: null,
-            matches: state.searchMatches.matches.map((searchMatch) => ({
+            matches: state.searchMatches.matches?.map((searchMatch) => ({
               ...searchMatch,
               focus: false,
             })),
