@@ -78,8 +78,8 @@ import type {
 } from "../types";
 
 interface LayerUIProps {
-  librariesHidden?: boolean;
-  librariesFreeze?: boolean;
+  hideLibrary?: boolean;
+  hideLibraryBrowseButton?: boolean;
   actionManager: ActionManager;
   appState: UIAppState;
   files: BinaryFiles;
@@ -140,8 +140,8 @@ const DefaultOverwriteConfirmDialog = () => {
 };
 
 const LayerUI = ({
-  librariesHidden,
-  librariesFreeze,
+  hideLibrary,
+  hideLibraryBrowseButton,
   actionManager,
   appState,
   files,
@@ -441,8 +441,8 @@ const LayerUI = ({
     return (
       <DefaultSidebar
         __fallback
-        librariesFreeze={librariesFreeze}
-        librariesHidden={librariesHidden}
+        hideLibraryBrowseButton={hideLibraryBrowseButton}
+        hideLibrary={hideLibrary}
         onDock={(docked) => {
           trackEvent(
             "sidebar",

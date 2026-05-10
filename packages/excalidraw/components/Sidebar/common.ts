@@ -26,8 +26,8 @@ export type SidebarProps<P = {}> = {
    */
   onDock?: (docked: boolean) => void;
   docked?: boolean;
-  librariesHidden?: boolean;
-  librariesFreeze?: boolean;
+  hideLibrary?: boolean;
+  hideLibraryBrowseButton?: boolean;
   className?: string;
   // NOTE sidebars we use internally inside the editor must have this flag set.
   // It indicates that this sidebar should have lower precedence over host

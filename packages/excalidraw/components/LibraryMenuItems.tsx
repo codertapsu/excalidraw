@@ -53,6 +53,7 @@ const ITEMS_RENDERED_PER_BATCH = 17;
 const CACHED_ITEMS_RENDERED_PER_BATCH = 64;
 
 export default function LibraryMenuItems({
+  hideLibraryBrowseButton,
   isLoading,
   libraryItems,
   onAddToLibrary,
@@ -64,6 +65,7 @@ export default function LibraryMenuItems({
   onSelectItems,
   selectedItems,
 }: {
+  hideLibraryBrowseButton?: boolean;
   isLoading: boolean;
   libraryItems: LibraryItems;
   pendingElements: LibraryItem["elements"];
@@ -432,7 +434,7 @@ export default function LibraryMenuItems({
         {JSX_whenNotSearching}
         {JSX_whenSearching}
 
-        {IS_LIBRARY_EMPTY && (
+        {!hideLibraryBrowseButton && IS_LIBRARY_EMPTY && (
           <LibraryMenuControlButtons
             style={{ padding: "16px 0", width: "100%" }}
             id={id}

@@ -63,7 +63,7 @@ const LibraryMenuWrapper = ({ children }: { children: React.ReactNode }) => {
 
 const LibraryMenuContent = memo(
   ({
-    librariesFreeze,
+    hideLibraryBrowseButton,
     onInsertLibraryItems,
     pendingElements,
     onAddToLibrary,
@@ -75,7 +75,7 @@ const LibraryMenuContent = memo(
     selectedItems,
     onSelectItems,
   }: {
-    librariesFreeze?: boolean;
+    hideLibraryBrowseButton?: boolean;
     pendingElements: LibraryItem["elements"];
     onInsertLibraryItems: (libraryItems: LibraryItems) => void;
     onAddToLibrary: () => void;
@@ -144,7 +144,7 @@ const LibraryMenuContent = memo(
     }
 
     const showBtn =
-      !librariesFreeze &&
+      !hideLibraryBrowseButton &&
       (libraryItemsData.libraryItems.length > 0 || pendingElements.length > 0);
 
     return (
@@ -265,7 +265,7 @@ const usePendingElementsMemo = (
  * <DefaultSidebar/> or host apps Sidebar components.
  */
 export const LibraryMenu = memo(
-  ({ librariesFreeze }: { librariesFreeze?: boolean }) => {
+  ({ hideLibraryBrowseButton }: { hideLibraryBrowseButton?: boolean }) => {
     const app = useApp();
     const { onInsertElements } = app;
     const appProps = useAppProps();
@@ -336,7 +336,7 @@ export const LibraryMenu = memo(
 
     return (
       <LibraryMenuContent
-        librariesFreeze={librariesFreeze}
+        hideLibraryBrowseButton={hideLibraryBrowseButton}
         pendingElements={pendingElements}
         onInsertLibraryItems={onInsertLibraryItems}
         onAddToLibrary={deselectItems}

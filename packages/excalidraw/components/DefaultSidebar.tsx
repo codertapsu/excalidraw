@@ -61,8 +61,8 @@ export const DefaultSidebar = Object.assign(
       className,
       onDock,
       docked,
-      librariesHidden,
-      librariesFreeze,
+      hideLibrary,
+      hideLibraryBrowseButton,
       ...rest
     }: Merge<
       MarkOptional<Omit<SidebarProps, "name">, "children">,
@@ -104,7 +104,7 @@ export const DefaultSidebar = Object.assign(
                 <Sidebar.TabTrigger tab={CANVAS_SEARCH_TAB}>
                   {searchIcon}
                 </Sidebar.TabTrigger>
-                {!librariesHidden && (
+                {!hideLibrary && (
                   <Sidebar.TabTrigger tab={LIBRARY_SIDEBAR_TAB}>
                     {LibraryIcon}
                   </Sidebar.TabTrigger>
@@ -115,9 +115,11 @@ export const DefaultSidebar = Object.assign(
             <Sidebar.Tab tab={CANVAS_SEARCH_TAB}>
               <SearchMenu />
             </Sidebar.Tab>
-            {!librariesHidden && (
+            {!hideLibrary && (
               <Sidebar.Tab tab={LIBRARY_SIDEBAR_TAB}>
-                <LibraryMenu librariesFreeze={librariesFreeze} />
+                <LibraryMenu
+                  hideLibraryBrowseButton={hideLibraryBrowseButton}
+                />
               </Sidebar.Tab>
             )}
             {children}
