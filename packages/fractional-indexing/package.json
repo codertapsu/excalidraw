@@ -1,6 +1,6 @@
 {
   "name": "@excalidraw/fractional-indexing",
-  "version": "0.18.0-codertapsu.5",
+  "version": "0.18.0-codertapsu.6",
   "description": "Provides functions for generating ordering strings",
   "type": "module",
   "types": "./dist/types/fractional-indexing/src/index.d.ts",
