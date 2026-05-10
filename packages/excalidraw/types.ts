@@ -568,8 +568,8 @@ export type OnExportProgress = {
 };
 
 export interface ExcalidrawProps {
-  librariesHidden?: boolean;
-  librariesFreeze?: boolean;
+  hideLibrary?: boolean;
+  hideLibraryBrowseButton?: boolean;
   onChange?: (
     elements: readonly OrderedExcalidrawElement[],
     appState: AppState,
