@@ -468,23 +468,25 @@ const LayerUI = ({
           tunneled away. We only render tunneled components that actually
         have defaults when host do not render anything. */}
       <DefaultMainMenu UIOptions={UIOptions} />
-      <DefaultSidebar.Trigger
-        __fallback
-        icon={sidebarRightIcon}
-        title={capitalizeString(t("toolBar.library"))}
-        onToggle={(open) => {
-          if (open) {
-            trackEvent(
-              "sidebar",
-              `${DEFAULT_SIDEBAR.name} (open)`,
-              `button (${
-                editorInterface.formFactor === "phone" ? "mobile" : "desktop"
-              })`,
-            );
-          }
-        }}
-        tab={DEFAULT_SIDEBAR.defaultTab}
-      />
+      {!hideLibrary && (
+        <DefaultSidebar.Trigger
+          __fallback
+          icon={sidebarRightIcon}
+          title={capitalizeString(t("toolBar.library"))}
+          onToggle={(open) => {
+            if (open) {
+              trackEvent(
+                "sidebar",
+                `${DEFAULT_SIDEBAR.name} (open)`,
+                `button (${
+                  editorInterface.formFactor === "phone" ? "mobile" : "desktop"
+                })`,
+              );
+            }
+          }}
+          tab={DEFAULT_SIDEBAR.defaultTab}
+        />
+      )}
       <DefaultOverwriteConfirmDialog />
       {appState.openDialog?.name === "ttd" && <TTDDialog __fallback />}
       {/* ------------------------------------------------------------------ */}
