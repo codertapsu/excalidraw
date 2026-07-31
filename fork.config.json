@@ -15,7 +15,7 @@
     "  raw     - https://raw.githubusercontent.com/<repo>/<branch>/<outDir>/<file>  (legacy)"
   ],
   "tag": "codertapsu",
-  "revision": 8,
+  "revision": 9,
   "repository": "codertapsu/excalidraw",
   "upstreamRepository": "excalidraw/excalidraw",
   "branch": "master",
