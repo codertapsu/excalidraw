@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@excalidraw/excalidraw": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-excalidraw-0.18.0-codertapsu.8.tgz"
+  },
+  "allUrls": {
+    "@excalidraw/common": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-common-0.18.0-codertapsu.8.tgz",
+    "@excalidraw/element": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-element-0.18.0-codertapsu.8.tgz",
+    "@excalidraw/excalidraw": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-excalidraw-0.18.0-codertapsu.8.tgz",
+    "@excalidraw/fractional-indexing": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-fractional-indexing-3.3.0-codertapsu.8.tgz",
+    "@excalidraw/math": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-math-0.18.0-codertapsu.8.tgz",
+    "@excalidraw/utils": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-utils-0.1.2-codertapsu.8.tgz"
+  }
+}
