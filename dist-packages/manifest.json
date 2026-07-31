@@ -1,0 +1,52 @@
+{
+  "tag": "codertapsu",
+  "revision": 8,
+  "releaseTag": "v0.18.0-codertapsu.8",
+  "urlStrategy": "release",
+  "repository": "codertapsu/excalidraw",
+  "commit": "d472ab0080ea9e4bfd5738ee016a3311b2a8d3ba",
+  "packages": [
+    {
+      "name": "@excalidraw/common",
+      "version": "0.18.0-codertapsu.8",
+      "upstreamVersion": "0.18.0",
+      "tarball": "excalidraw-common-0.18.0-codertapsu.8.tgz",
+      "url": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-common-0.18.0-codertapsu.8.tgz"
+    },
+    {
+      "name": "@excalidraw/element",
+      "version": "0.18.0-codertapsu.8",
+      "upstreamVersion": "0.18.0",
+      "tarball": "excalidraw-element-0.18.0-codertapsu.8.tgz",
+      "url": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-element-0.18.0-codertapsu.8.tgz"
+    },
+    {
+      "name": "@excalidraw/excalidraw",
+      "version": "0.18.0-codertapsu.8",
+      "upstreamVersion": "0.18.0",
+      "tarball": "excalidraw-excalidraw-0.18.0-codertapsu.8.tgz",
+      "url": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-excalidraw-0.18.0-codertapsu.8.tgz"
+    },
+    {
+      "name": "@excalidraw/fractional-indexing",
+      "version": "3.3.0-codertapsu.8",
+      "upstreamVersion": "3.3.0",
+      "tarball": "excalidraw-fractional-indexing-3.3.0-codertapsu.8.tgz",
+      "url": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-fractional-indexing-3.3.0-codertapsu.8.tgz"
+    },
+    {
+      "name": "@excalidraw/math",
+      "version": "0.18.0-codertapsu.8",
+      "upstreamVersion": "0.18.0",
+      "tarball": "excalidraw-math-0.18.0-codertapsu.8.tgz",
+      "url": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-math-0.18.0-codertapsu.8.tgz"
+    },
+    {
+      "name": "@excalidraw/utils",
+      "version": "0.1.2-codertapsu.8",
+      "upstreamVersion": "0.1.2",
+      "tarball": "excalidraw-utils-0.1.2-codertapsu.8.tgz",
+      "url": "https://github.com/codertapsu/excalidraw/releases/download/v0.18.0-codertapsu.8/excalidraw-utils-0.1.2-codertapsu.8.tgz"
+    }
+  ]
+}
