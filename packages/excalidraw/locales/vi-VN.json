@@ -185,9 +185,6 @@
     "shapeSwitch": "Đổi hình",
     "preferences": "Tùy chọn",
     "preferences_toolLock": "Khóa công cụ",
-    "boxSelectionMode": "Chọn khi",
-    "boxSelectionContain": "Bao trọn",
-    "boxSelectionOverlap": "Giao nhau",
     "arrowBinding": "Gắn mũi tên",
     "midpointSnapping": "Bắt vào trung điểm"
   },
