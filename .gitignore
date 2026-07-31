@@ -12,7 +12,11 @@
 .yarn
 *.log
 *.tgz
-!/dist-packages/*.tgz
+# Fork release tarballs — published as GitHub release assets from revision 8
+# on, not committed (revisions 1-7 added ~575 MB of binaries to history).
+# Only the metadata (manifest.json, dependencies.json, README.md) is tracked.
+dist-packages/*.tgz
+dist-packages/RELEASE_NOTES.md
 build
 dist
 firebase

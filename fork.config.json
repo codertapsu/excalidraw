@@ -1,0 +1,25 @@
+{
+  "$comment": [
+    "Configuration for the codertapsu fork's tarball releases.",
+    "Bump `revision` for every release built from the same upstream version.",
+    "Each package is published as <itsUpstreamVersion>-<tag>.<revision> (the bases differ:",
+    "excalidraw/common/math/element 0.18.0, fractional-indexing 3.3.0, utils 0.1.2);",
+    "the release tag comes from @excalidraw/excalidraw, e.g. v0.18.0-codertapsu.8.",
+    "Revisions 1-7 were published as tarballs committed to git and installed from",
+    "raw.githubusercontent.com — superseded by immutable release assets from revision 8 on.",
+    "IMPORTANT: never republish a release tag — npm caches by URL and lockfiles pin an",
+    "integrity hash, so consumers would fail with EINTEGRITY. Bump `revision` instead.",
+    "",
+    "urlStrategy:",
+    "  release - https://github.com/<repo>/releases/download/<tag>/<file>  (immutable; recommended)",
+    "  raw     - https://raw.githubusercontent.com/<repo>/<branch>/<outDir>/<file>  (legacy)"
+  ],
+  "tag": "codertapsu",
+  "revision": 8,
+  "repository": "codertapsu/excalidraw",
+  "upstreamRepository": "excalidraw/excalidraw",
+  "branch": "master",
+  "outDir": "dist-packages",
+  "urlStrategy": "release",
+  "releaseTagPrefix": "v"
+}

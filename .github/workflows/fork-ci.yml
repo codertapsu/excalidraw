@@ -1,0 +1,40 @@
+name: Fork CI
+
+# Guards the fork's release path: these packages are consumed directly from
+# release tarballs, so a broken build reaches production apps with no registry
+# step in between. Upstream's own test.yml / lint.yml continue to run alongside.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: fork-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Typecheck
+        run: yarn test:typecheck
+
+      - name: Build packages
+        run: |
+          yarn build:packages
+          yarn --cwd ./packages/utils build:esm
+
+      - name: Pack (dry run)
+        run: node scripts/pack-fork.mjs --dry-run --skip-build --allow-dirty

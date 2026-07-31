@@ -1,0 +1,102 @@
+name: Fork release
+
+# Builds every @excalidraw package and publishes the tarballs as assets on a
+# GitHub release. Assets are immutable — a raw.githubusercontent.com/<branch>
+# path serves whatever is at the branch head, so a force-push would change the
+# bytes behind URLs consumers pinned with an integrity hash.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_revision:
+        description: 'Bump the fork revision before packing'
+        type: boolean
+        default: true
+      revision:
+        description: 'Set an explicit revision instead (e.g. 1 after an upstream version bump)'
+        type: string
+        required: false
+      draft:
+        description: 'Create the release as a draft'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fork-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # release notes diff against the previous fork tag
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Typecheck
+        run: yarn test:typecheck
+
+      - name: Set revision
+        run: |
+          if [ -n "${{ inputs.revision }}" ]; then
+            yarn fork:revision "${{ inputs.revision }}"
+          elif [ "${{ inputs.bump_revision }}" = "true" ]; then
+            yarn fork:revision
+          else
+            echo "::warning::Keeping the current revision — this will collide with an existing release tag."
+          fi
+
+      - name: Commit the revision bump
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet fork.config.json; then
+            echo "Revision unchanged."
+          else
+            git add fork.config.json
+            git commit -m "chore(fork): revision $(node -p "require('./fork.config.json').revision")"
+            git push
+          fi
+
+      # Runs after the commit so the recorded provenance SHA is the published one
+      - name: Build and pack
+        run: yarn fork:pack
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: yarn fork:publish ${{ inputs.draft && '--draft' || '' }}
+
+      - name: Commit the dependency manifest
+        run: |
+          git add dist-packages
+          if git diff --staged --quiet; then
+            echo "Manifest unchanged."
+            exit 0
+          fi
+          git commit -m "chore(fork): manifest for $(node -p "require('./dist-packages/manifest.json').releaseTag")"
+          git push
+
+      - name: Summary
+        run: |
+          TAG=$(node -p "require('./dist-packages/manifest.json').releaseTag")
+          {
+            echo "### Released \`$TAG\`"
+            echo
+            echo "[Release page](https://github.com/${{ github.repository }}/releases/tag/$TAG)"
+            echo
+            echo '```json'
+            node -p "JSON.stringify(require('./dist-packages/dependencies.json').dependencies, null, 2)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
