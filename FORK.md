@@ -114,6 +114,49 @@ Intra-repo siblings should show `releases/download/...` URLs; the external
 
 ## Syncing with upstream
 
+### Upstream lineage — read before running `fork:sync`
+
+The fork's history was rewritten in place on 2026-08-11 (excalidraw) and
+2026-08-17 (Yoopta): a `git filter-branch` across all refs stripped
+`Co-Authored-By` trailers, and the result was force-pushed to `origin`.
+
+Every rewritten commit kept a byte-identical tree, so nothing was censored and
+no licence or attribution file was lost. What did change is ancestry. The
+rewrite re-created the vendored **upstream** commits too, under new SHAs, so a
+fresh clone of this fork no longer shares history with the real upstream:
+
+| | `git merge-base HEAD upstream/master` after a fresh fetch |
+|---|---|
+| excalidraw | nothing — the two graphs are disjoint |
+| Yoopta | resolves to `96edde3d` (2022-11-04), thousands of commits too early |
+
+Locally this is invisible, because the `upstream/master` remote-tracking ref was
+itself rewritten and *does* sit in the fork's history. It only shows up in CI,
+which clones fresh and fetches the genuine upstream.
+
+**What was done about it.** `fork.config.json` now carries
+`upstreamSyncedCommit`, the real upstream commit this fork was last synced to,
+and both the weekly workflow and `fork:sync` prefer it over `merge-base`. When
+neither yields a usable base they now fail with this message instead of dying
+silently under `bash -e`. That restores the *watch* — you will hear about
+upstream movement — and keeps the file-overlap report meaningful.
+
+**What was NOT done, and needs a deliberate decision.** Real ancestry is still
+severed, so `git merge upstream/master` will refuse with `refusing to merge
+unrelated histories`. Restoring it is a one-time choice between:
+
+- `git replace --graft <first-fork-commit> <real-upstream-commit>`, which is
+  local unless `refs/replace/*` is pushed and fetched explicitly; or
+- a single `git merge --allow-unrelated-histories` on a scratch branch,
+  resolving to the fork's side for every file it owns.
+
+**Do not force-push the release tags.** They still point at the pre-rewrite
+commits, which are exactly the SHAs recorded in each release's
+`dist-packages/manifest.json`. Published tarballs, their manifests and the
+remote tags form one coherent set; re-pointing the tags at the rewritten
+commits would orphan every manifest and destroy the only intact provenance
+link. The local clone is the copy that diverges — reconcile that instead.
+
 ```bash
 yarn fork:sync:check   # report what changed upstream and whether it collides with our edits
 yarn fork:sync         # fetch, branch, merge
@@ -186,7 +229,10 @@ app. Or revisit and gate them too — both are small follow-ups.
 - **Revisions 1-7** (`0.18.0-codertapsu.1` … `.7`): released by the retired
   `scripts/release-local.js` / `scripts/pack-all.js` — versions bumped and
   committed in-tree, tarballs committed to `dist-packages/` and served from raw
-  URLs on `master`, pushed to a `secondary` remote. Those tarballs remain in git
-  history but are no longer in the tree.
+  URLs on `master`, pushed to a `secondary` remote. Five of those tarballs were
+  restored to `dist-packages/` in `52ecc7f7` and are tracked in the tree again,
+  because seven release branches (v4.0.0 – v5.3.0) still pin their raw URLs.
+  `fork:pack` wipes its output directory, so a release must not be allowed to
+  delete them.
 - **Revision 8 onward**: the workflow described above — pristine workspace
   versions, immutable release assets, `origin`/`upstream` remote convention.

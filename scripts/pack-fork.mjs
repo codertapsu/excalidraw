@@ -26,8 +26,9 @@
  * package.json edits are made in place and always reverted, so a failed run
  * leaves the working tree clean.
  */
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { basename, join } from 'node:path';
 
 import {
   BUILD_COMMANDS,
@@ -139,7 +140,27 @@ process.on('SIGINT', () => {
 
 try {
   if (!dryRun) {
-    rmSync(outDir, { recursive: true, force: true });
+    // Wiping the whole directory would delete the revision-7 tarballs restored
+    // in 52ecc7f7, which seven release branches (v4.0.0 - v5.3.0) still pin by
+    // raw URL. `dist-packages/*.tgz` is gitignored, so their loss would surface
+    // only as five deletions inside a bot release commit — and the branches
+    // would fail `npm install` again on a cold cache. Keep anything git tracks
+    // and clear the rest.
+    const tracked = new Set(
+      execFileSync('git', ['ls-files', outDir], { cwd: ROOT, encoding: 'utf8' })
+        .trim()
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((rel) => basename(rel)),
+    );
+
+    if (existsSync(outDir)) {
+      for (const entry of readdirSync(outDir)) {
+        if (tracked.has(entry)) continue;
+        rmSync(join(outDir, entry), { recursive: true, force: true });
+      }
+    }
     mkdirSync(outDir, { recursive: true });
   }
 

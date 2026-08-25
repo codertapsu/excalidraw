@@ -66,7 +66,38 @@ console.log(`Fetching ${ref.split('/')[0]}…`);
 git('fetch', 'upstream', '--tags', '--prune');
 
 // 2. What changed upstream?
-const mergeBase = git('merge-base', 'HEAD', ref);
+// The fork's history was rewritten in place (a filter-branch that stripped
+// commit trailers), which re-created the vendored upstream commits under new
+// SHAs — so a clone shares no usable ancestry with the real upstream. Prefer
+// the recorded sync point; `git merge-base` either throws here (excalidraw) or
+// lands on a years-old commit (Yoopta). See FORK.md.
+const recordedBase =
+  typeof config.upstreamSyncedCommit === 'string' && config.upstreamSyncedCommit
+    ? config.upstreamSyncedCommit
+    : '';
+
+let mergeBase = '';
+if (recordedBase) {
+  try {
+    git('cat-file', '-e', `${recordedBase}^{commit}`);
+    mergeBase = recordedBase;
+  } catch {
+    console.warn(`upstreamSyncedCommit ${recordedBase} is not reachable — falling back to merge-base.`);
+  }
+}
+
+if (!mergeBase) {
+  try {
+    mergeBase = git('merge-base', 'HEAD', ref);
+  } catch {
+    console.error(
+      '\nNo common ancestry with upstream, and no usable `upstreamSyncedCommit`\n' +
+        'in fork.config.json. A plain `git merge` will refuse to run against an\n' +
+        'unrelated history. See the "Upstream lineage" section of FORK.md.\n',
+    );
+    process.exit(1);
+  }
+}
 const upstreamHead = git('rev-parse', ref);
 
 if (mergeBase === upstreamHead) {

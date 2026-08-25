@@ -18,6 +18,7 @@
   "revision": 9,
   "repository": "codertapsu/excalidraw",
   "upstreamRepository": "excalidraw/excalidraw",
+  "upstreamSyncedCommit": "786ab266ff3a9cfffaed16804cf9132b44bc08ae",
   "branch": "master",
   "outDir": "dist-packages",
   "urlStrategy": "release",

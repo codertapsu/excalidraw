@@ -37,7 +37,32 @@ jobs:
       - name: Compare with upstream
         id: compare
         run: |
-          BASE=$(git merge-base HEAD upstream/master)
+          # The fork's history was rewritten in place (a filter-branch that
+          # stripped commit trailers), which re-created the vendored upstream
+          # commits under new SHAs. A fresh checkout therefore shares no
+          # ancestry with the real upstream: `git merge-base` finds nothing in
+          # excalidraw, and lands on a 2022 commit in Yoopta. Left as a bare
+          # assignment this step died under `bash -e` and the weekly watch went
+          # quiet without saying so.
+          #
+          # `upstreamSyncedCommit` in fork.config.json records the real upstream
+          # commit this fork was last synced to. Prefer it, fall back to the
+          # merge base, and fail loudly rather than silently when neither works.
+          BASE=$(node -p "require('./fork.config.json').upstreamSyncedCommit || ''" 2>/dev/null || echo "")
+
+          if [ -n "$BASE" ] && ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+            echo "::warning::upstreamSyncedCommit ${BASE} is not reachable; falling back to merge-base."
+            BASE=""
+          fi
+
+          if [ -z "$BASE" ]; then
+            BASE=$(git merge-base HEAD upstream/master 2>/dev/null || echo "")
+          fi
+
+          if [ -z "$BASE" ]; then
+            echo "::error::No usable comparison point against upstream. Set upstreamSyncedCommit in fork.config.json to the upstream commit this fork was last synced to. See FORK.md."
+            exit 1
+          fi
           HEAD_SHA=$(git rev-parse upstream/master)
 
           if [ "$BASE" = "$HEAD_SHA" ]; then
