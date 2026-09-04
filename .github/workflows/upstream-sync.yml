@@ -33,6 +33,12 @@ jobs:
         run: |
           git remote add upstream https://github.com/excalidraw/excalidraw.git
           git fetch upstream --tags --prune
+          # The fork's history was rewritten, so its own commits no longer
+          # descend from the genuine upstream ones. A published replace ref
+          # (refs/replace/*) grafts the seam back together — but git does NOT
+          # fetch that namespace by default, so without this the graft is
+          # invisible here and merge-base falls back to the recorded commit.
+          git fetch origin '+refs/replace/*:refs/replace/*' || true
 
       - name: Compare with upstream
         id: compare

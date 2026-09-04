@@ -151,14 +151,23 @@ neither yields a usable base they now fail with this message instead of dying
 silently under `bash -e`. That restores the *watch* — you will hear about
 upstream movement — and keeps the file-overlap report meaningful.
 
-**What was NOT done, and needs a deliberate decision.** Real ancestry is still
-severed, so `git merge upstream/master` will refuse with `refusing to merge
-unrelated histories`. Restoring it is a one-time choice between:
+**How ancestry was restored.** With a published `git replace` graft, not a
+history rewrite. The fork's sync seam — the commit whose parent was the
+rewritten copy of the upstream tip — is grafted onto the genuine upstream
+commit instead. The two have byte-identical trees, so this changes no file and
+no existing commit: it only tells git what the parent should have been.
 
-- `git replace --graft <first-fork-commit> <real-upstream-commit>`, which is
-  local unless `refs/replace/*` is pushed and fetched explicitly; or
-- a single `git merge --allow-unrelated-histories` on a scratch branch,
-  resolving to the fork's side for every file it owns.
+The graft is pushed to `refs/replace/*` on origin, and both the sync workflow
+and anyone working locally must fetch that namespace explicitly, because git
+does not include it in the default refspec:
+
+```
+git fetch origin '+refs/replace/*:refs/replace/*'
+```
+
+With it in place `git merge-base HEAD upstream/master` resolves to the real
+upstream commit again and `fork:sync` works normally. To undo, `git replace -d
+<sha>` locally and delete the remote ref — nothing else is affected.
 
 **Do not force-push the release tags.** They still point at the pre-rewrite
 commits, which are exactly the SHAs recorded in each release's
