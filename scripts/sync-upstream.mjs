@@ -79,10 +79,15 @@ const recordedBase =
 let mergeBase = '';
 if (recordedBase) {
   try {
-    git('cat-file', '-e', `${recordedBase}^{commit}`);
+    // Ancestry, not mere existence: `cat-file -e` passes for any object in the
+    // store and says nothing about upstream/master. A non-ancestor would make
+    // the ranges below compare disjoint graphs.
+    git('merge-base', '--is-ancestor', recordedBase, ref);
     mergeBase = recordedBase;
   } catch {
-    console.warn(`upstreamSyncedCommit ${recordedBase} is not reachable — falling back to merge-base.`);
+    console.warn(
+      `upstreamSyncedCommit ${recordedBase} is not an ancestor of ${ref} — falling back to merge-base.`,
+    );
   }
 }
 

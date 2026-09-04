@@ -121,7 +121,17 @@ The fork's history was rewritten in place on 2026-08-11 (excalidraw) and
 `Co-Authored-By` trailers, and the result was force-pushed to `origin`.
 
 Every rewritten commit kept a byte-identical tree, so nothing was censored and
-no licence or attribution file was lost. What did change is ancestry. The
+no licence or attribution file was lost. Two things did change.
+
+The first is **signatures**. filter-branch re-creates commit objects, which
+drops the `gpgsig` header, so every rewritten copy of an upstream commit lost
+GitHub's PGP signature. That — not the trailer — is what distinguishes a
+genuine upstream commit from a rewritten one: `git cat-file commit <sha>` on
+the real `786ab266` shows a `gpgsig` block, its rewritten twin `bb7716c4` does
+not, and both still carry the upstream contributors' own `Co-authored-by`
+trailers. Do not try to tell them apart by trailer.
+
+The second is **ancestry**. The
 rewrite re-created the vendored **upstream** commits too, under new SHAs, so a
 fresh clone of this fork no longer shares history with the real upstream:
 
@@ -232,7 +242,7 @@ app. Or revisit and gate them too — both are small follow-ups.
   URLs on `master`, pushed to a `secondary` remote. Five of those tarballs were
   restored to `dist-packages/` in `52ecc7f7` and are tracked in the tree again,
   because seven release branches (v4.0.0 – v5.3.0) still pin their raw URLs.
-  `fork:pack` wipes its output directory, so a release must not be allowed to
-  delete them.
+  `fork:pack` used to wipe its output directory wholesale; it now preserves
+  anything git tracks, so a release can no longer delete them.
 - **Revision 8 onward**: the workflow described above — pristine workspace
   versions, immutable release assets, `origin`/`upstream` remote convention.

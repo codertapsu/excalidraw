@@ -50,8 +50,14 @@ jobs:
           # merge base, and fail loudly rather than silently when neither works.
           BASE=$(node -p "require('./fork.config.json').upstreamSyncedCommit || ''" 2>/dev/null || echo "")
 
-          if [ -n "$BASE" ] && ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
-            echo "::warning::upstreamSyncedCommit ${BASE} is not reachable; falling back to merge-base."
+          # Ancestry, not mere existence. `git cat-file -e` passes for ANY object
+          # in the store — a dangling pre-rewrite commit, a fork commit, an
+          # ambiguous prefix — and says nothing about upstream/master. A SHA
+          # that is not an ancestor makes `$BASE..upstream/master` compare
+          # disjoint graphs, and the report claims tens of thousands of commits
+          # behind with an overlap list covering the whole tree.
+          if [ -n "$BASE" ] && ! git merge-base --is-ancestor "$BASE" upstream/master 2>/dev/null; then
+            echo "::warning::upstreamSyncedCommit ${BASE} is not an ancestor of upstream/master; falling back to merge-base."
             BASE=""
           fi
 

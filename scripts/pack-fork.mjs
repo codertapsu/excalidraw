@@ -146,14 +146,35 @@ try {
     // only as five deletions inside a bot release commit — and the branches
     // would fail `npm install` again on a cold cache. Keep anything git tracks
     // and clear the rest.
-    const tracked = new Set(
-      execFileSync('git', ['ls-files', outDir], { cwd: ROOT, encoding: 'utf8' })
-        .trim()
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((rel) => basename(rel)),
-    );
+    // Compare the FIRST PATH SEGMENT under outDir, not the basename. `git
+    // ls-files` emits repo-relative paths, so basename() would map a tracked
+    // `dist-packages/sub/x.tgz` to `x.tgz` — failing to protect the `sub`
+    // directory that actually holds it, while wrongly protecting an untracked
+    // top-level `x.tgz`. Flat today, but this is the one loop that deletes.
+    const outDirName = basename(outDir);
+    let tracked = new Set();
+
+    try {
+      tracked = new Set(
+        execFileSync('git', ['ls-files', outDir], { cwd: ROOT, encoding: 'utf8' })
+          .trim()
+          .split('\n')
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((rel) => {
+            const parts = rel.split('/');
+            const index = parts.indexOf(outDirName);
+
+            return index === -1 ? parts[0] : parts[index + 1];
+          })
+          .filter(Boolean),
+      );
+    } catch {
+      // No git, or no working tree. Packing must not become impossible just
+      // because we cannot ask what is tracked — fall back to the old
+      // behaviour of clearing everything.
+      tracked = new Set();
+    }
 
     if (existsSync(outDir)) {
       for (const entry of readdirSync(outDir)) {
